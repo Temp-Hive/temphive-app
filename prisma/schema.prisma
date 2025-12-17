@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  BUSINESS_OWNER
+  BUSINESS_STAFF
+  ADMIN
+  SUPPORT
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  PENDING
+  DELETED
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  role      Role       @default(STUDENT)
+  status    UserStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  studentProfile  StudentProfile?
+  businessProfile BusinessProfile?
+}
+
+model StudentProfile {
+  userId      String   @id
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school      String?
+  year        String?
+  major       String?
+  bio         String?
+  hourlyRate  Int?
+  skills      String[] @default([])
+  city        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BusinessProfile {
+  userId        String   @id
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName   String?
+  industry      String?
+  city          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
